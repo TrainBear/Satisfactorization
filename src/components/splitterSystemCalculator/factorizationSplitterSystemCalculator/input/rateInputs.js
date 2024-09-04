@@ -32,22 +32,25 @@ export class RateInputs extends HTMLElement {
         legend.innerText = this.getAttribute("legend");
 
         // Count
+        const label = factory.createElement("label");
+        label.innerText = "Output belt count";
         this.#countInput = factory.createElement("input");
         this.#countInput.setAttribute("type", "number");
         this.#countInput.setAttribute("placeholder", "output count");
         this.#countInput.valueAsNumber = this.#rateInputs.length;
         this.#countInput.addEventListener("change", this.#onCountSet.bind(this));
+        label.append(this.#countInput);
 
-        // Add input
+        // Increment button
         const addButton = factory.createElement("button");
         addButton.setAttribute("type", "button");
-        addButton.innerText = "Add";
+        addButton.innerText = "Increment";
         addButton.addEventListener('click', this.#addRateInput.bind(this));
 
         // Fieldset
         this.#fieldSet = factory.createElement("fieldset");
         this.#fieldSet.append(legend);
-        this.#fieldSet.append(this.#countInput);
+        this.#fieldSet.append(label);
         this.#fieldSet.append(addButton);
 
         // Form

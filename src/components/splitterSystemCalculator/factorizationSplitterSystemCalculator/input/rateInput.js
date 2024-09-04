@@ -24,11 +24,15 @@ export class RateInput extends HTMLElement {
         const br = factory.createElement("br");
         this.append(br);
 
+        const label = factory.createElement("label");
+        label.innerText = "Rate";
+        this.append(label);
+
         this.#inputField.type = "text";
         this.#inputField.setAttribute("placeholder", "items / minute");
         this.#inputField.setAttribute("name", "rate");
         this.#inputField.addEventListener("change", this.#onChange.bind(this));
-        this.append(this.#inputField);
+        label.append(this.#inputField);
 
         const deleteButton = factory.createElement('button');
         deleteButton.setAttribute('type', 'button');
