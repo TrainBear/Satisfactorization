@@ -1,0 +1,30 @@
+{
+  "name": "satisfactorization",
+  "version": "0.1.0",
+  "description": "Specialized calculator tool to make slitter systems in Satisfactory using gcd and prime factorization.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrainBear/Satisfactorization.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TrainBear/Satisfactorization/issues"
+  },
+  "homepage": "https://github.com/TrainBear/Satisfactorization#readme",
+  "dependencies": {
+    "fraction.js": "^4.3.7",
+    "mathjs": "^13.1.1",
+    "prime-lib": "^0.5.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
