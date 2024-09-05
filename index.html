@@ -30,13 +30,22 @@
     Including the hours lost to debugging your factory. :)
 </p>
 
-<p>NOTICE: When the words input and output are used, it refers to the splitter system's input and output.
+<p>
+    NOTICE: When the words input and output are used, it refers to the splitter system's input and output.
     Not machine input and output.
 </p>
 
 <b>Parameters</b>
 <p>
     Specify how many belts you want, and their rates. Increasing the count, clones the last belt.
+</p>
+<p>
+    NOTICE: Rounded numbers can result in super complex splitter systems (or even program errors),
+    that would probably be much simpler with exact numbers.
+    Note that the game, and a lot of <a href="https://satisfactory.wiki.gg/wiki/Online_tools#Factory_planners">satisfactory planner tools</a> display rounded rates in a lot of places.
+    Make sure to interpret them correctly to get the exact rates.
+    In this tool, you can use <a href="https://en.wikipedia.org/wiki/Repeating_decimal#Notation">fraction notation
+    like "10/3" or parentheses notation like "3.(3)"</a> for numbers with repeating decimals.
 </p>
 
 <b>Interpret the Solution</b>
@@ -46,7 +55,8 @@
     requested output rates.
 </p>
 
-<p>The layers describe the splitter component. It is a list containing only twos and threes, and corresponds to two-way
+<p>
+    The layers describe the splitter component. It is a list containing only twos and threes, and corresponds to two-way
     or three-way splitters. Begin with the input belt.
     For every item in the list, split all the belts from the previous layer (or input, if it's the first layer), in to
     two or three (based on the current list item). This can be done in any layer.
