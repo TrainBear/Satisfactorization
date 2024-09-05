@@ -13,9 +13,6 @@ export class Layers extends HTMLElement {
     }
 
     update(calculator) {
-        if(isUndefined(calculator.layers)){
-            return;
-        }
         this.#textElement.innerText = "Layers: " + calculator.layers.toString();
     }
 }

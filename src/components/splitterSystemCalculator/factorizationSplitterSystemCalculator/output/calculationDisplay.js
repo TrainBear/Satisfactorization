@@ -31,6 +31,9 @@ export class CalculationDisplay extends HTMLElement{
      * @param calculator {Calculator}
      */
     update(calculator){
+        if(!calculator.isValid){
+            return;
+        }
         this.#inputRate.update(calculator);
         this.#loopBacks.update(calculator);
         this.#layers.update(calculator);
