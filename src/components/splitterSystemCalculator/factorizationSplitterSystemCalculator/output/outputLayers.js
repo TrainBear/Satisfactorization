@@ -1,10 +1,34 @@
 import factory from "../../../../factory.js";
 
 class OutputLayers extends HTMLElement{
-    #textElement;
+    #table;
+    #tableRows = [];
+    #initiated;
     connectedCallback(){
-        this.#textElement = factory.createElement("p");
-        this.append(this.#textElement);
+        if(this.#initiated){
+            return;
+        }
+        this.#initiated = true;
+        this.#table = factory.createElement("table");
+        this.#table.setAttribute("title", "This table describes how many last layer belts must be " +
+            "merged to get the requested outputs.");
+
+        const caption = factory.createElement("caption");
+        caption.innerText = 'Output Merging'
+        this.#table.append(caption);
+
+        const tr = factory.createElement("tr");
+        this.#table.append(tr);
+
+        const th1 = factory.createElement("th");
+        th1.innerText = "Output rate";
+        tr.append(th1);
+
+        const th2 = factory.createElement("th");
+        th2.innerText = "Last Layer Belts";
+        tr.append(th2);
+
+        this.append(this.#table);
     }
 
     /**
@@ -12,16 +36,29 @@ class OutputLayers extends HTMLElement{
      * @param calculator {Calculator}
      */
     update(calculator){
-        if(!calculator.isValid){
-            return;
-        }
+        this.#resetRows();
+
         const outputLayers = calculator.outputLayers;
-        let s = "Output belts: ";
+
         for (let i=0; i<outputLayers.length; i++) {
-            s += outputLayers[i].rate.toString() + ": " + outputLayers[i].belts.toString() + " | ";
+            const tr = factory.createElement("tr");
+            this.#table.append(tr);
+            this.#tableRows.push(tr);
+
+            const td1 = factory.createElement("td");
+            td1.innerText = outputLayers[i].rate;
+            tr.append(td1);
+
+            const td2 = factory.createElement("td");
+            td2.innerText = outputLayers[i].belts;
+            tr.append(td2);
         }
-        s = s.slice(0, s.length - " | ".length);
-        this.#textElement.innerText = s;
+    }
+
+    #resetRows(){
+        while(this.#tableRows.length > 0){
+            this.#tableRows.pop().remove();
+        }
     }
 }
 window.customElements.define('output-layers', OutputLayers);

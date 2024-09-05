@@ -106,20 +106,8 @@ export default class Calculator {
     }
 
     get outputLayers(){
-        // const adjustedRatios = this.#outputRates.map(rate=> {
-        //     const ratio = rate.div(this.inputRate);
-        //     const den = this.#den;
-        //     const x = den/ratio.d;
-        //     const n = ratio.n * x;
-        //     const d = ratio.d * x + this.#loopBacks;
-        //     return math.fraction(n,d);
-        // });
-
-
         const outputLayers = []
         for (let i=0; i<this.#outputRates.length; i++){
-
-
             const ratio = this.#outputRates[i].div(this.inputRate);
             const den = this.#den;
             const x = den/ratio.d;

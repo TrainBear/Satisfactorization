@@ -10,20 +10,28 @@ export class CalculationDisplay extends HTMLElement{
     #layers;
     #loopBacks;
     #outputLayers;
+    #invalidInputMessage;
+    #div;
     connectedCallback(){
         // super.connectedCallback();
 
+        this.#invalidInputMessage = factory.createElement('p');
+        this.#invalidInputMessage.innerText = "Invalid parameters!";
+        this.append(this.#invalidInputMessage);
+
+        this.#div = factory.createElement('div');
+
         this.#inputRate = factory.createElement("input-rate");
-        this.append(this.#inputRate);
+        this.#div.append(this.#inputRate);
 
         this.#layers = factory.createElement("layers-display");
-        this.append(this.#layers);
+        this.#div.append(this.#layers);
 
         this.#outputLayers = factory.createElement("output-layers");
-        this.append(this.#outputLayers);
+        this.#div.append(this.#outputLayers);
 
         this.#loopBacks = factory.createElement("loop-backs");
-        this.append(this.#loopBacks);
+        this.#div.append(this.#loopBacks);
     }
 
     /**
@@ -31,6 +39,14 @@ export class CalculationDisplay extends HTMLElement{
      * @param calculator {Calculator}
      */
     update(calculator){
+        if(!calculator.isValid){
+            this.#div.remove();
+            this.append(this.#invalidInputMessage);
+            return;
+        }
+        this.#invalidInputMessage.remove();
+        this.append(this.#div);
+
         this.#inputRate.update(calculator);
         this.#loopBacks.update(calculator);
         this.#layers.update(calculator);

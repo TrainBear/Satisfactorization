@@ -6,8 +6,14 @@ export class InputRate extends HTMLElement {
      */
     #textElement;
 
+    #initiated = false;
+
     connectedCallback() {
         // super.connectedCallback();
+        if(this.#initiated){
+            return;
+        }
+        this.#initiated = true;
         this.#textElement = factory.createElement('p');
         this.append(this.#textElement);
     }
