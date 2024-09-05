@@ -8,8 +8,81 @@
 </head>
 
 <body>
-<p>WORK IN PROGRESS!</p>
+<p title="Work in progress!">WIP</p>
 <h1>Satisfactorization</h1>
 <factorization-splitter-system-calculator></factorization-splitter-system-calculator>
+<h2>About</h2>
+<p>This is a specialized calculator meant to be used for designing division (normal splitter) based splitter systems
+    for <a href="https://www.satisfactorygame.com/">Satisfactory</a>.</p>
+<p>It uses <a href="https://simple.wikipedia.org/wiki/Greatest_common_divisor">gcd</a>
+    and <a href="https://simple.wikipedia.org/wiki/Prime_factorization">prime factorization</a>, and adds necessary loop-backs to
+    calculate what layers of splitters and mergers is needed. This gives a compact representation of a possible solution for the
+    system; in the form of a layer list, and merge counts. Keep reading to understand how to interpret this representation.</p>
+
+<h2>How To Use</h2>
+<p>
+    Don't. <a href="https://satisfactory.wiki.gg/wiki/Manifold">Manifolds</a> are in most cases sufficient, and advanced
+    splitter systems is mostly redundant. Unless it's for fun, /g or if it's necessary for good sleep. /j
+</p>
+
+<p>
+    NOTICE: There may be calculation errors, and you are responsible for the negative consequences of usage of this tool.
+    Including the hours lost to debugging your factory. :)
+</p>
+
+<p>
+    NOTICE: When the words input and output are used, it refers to the splitter system's input and output.
+    Not machine input and output.
+</p>
+
+<b>Parameters</b>
+<p>
+    Specify how many belts you want, and their rates. Increasing the count, clones the last belt.
+</p>
+<p>
+    NOTICE: Rounded numbers can result in super complex splitter systems (or even program errors),
+    that would probably be much simpler with exact numbers.
+    Note that the game, and a lot of <a href="https://satisfactory.wiki.gg/wiki/Online_tools#Factory_planners">satisfactory planner tools</a> display rounded rates in a lot of places.
+    Make sure to interpret them correctly to get the exact rates.
+    In this tool, you can use <a href="https://en.wikipedia.org/wiki/Repeating_decimal#Notation">fraction notation
+    like "10/3" or parentheses notation like "3.(3)"</a> for numbers with repeating decimals.
+</p>
+
+<b>Interpret the Solution</b>
+<p>
+    The splitter system will consist of two components, the splitter component and the merger component.
+    The splitter component splits the items in belts with equal rates, these rates will then be merged together to the
+    requested output rates.
+</p>
+
+<p>
+    The layers describe the splitter component. It is a list containing only twos and threes, and corresponds to two-way
+    or three-way splitters. Begin with the input belt.
+    For every item in the list, split all the belts from the previous layer (or input, if it's the first layer), in to
+    two or three (based on the current list item). This can be done in any layer.
+</p>
+
+<p>The "Output Merging" represent the merging component.
+    It shows how many belts from the last layer in the splitter component (right column),
+    must be merged to get a certain rate (left column).
+    If all the outputs are equal, then no merging is needed (hence all the outputs only needs one last layer belt).
+</p>
+
+<p>
+    Loop-backs shows how many last layer belts must be merged back to the input. Keep in mind that loop-backs increases
+    the required capacity of the belt after it is merged with the input.
+    The rate after input and loop-back is merged will be: input + input * loop-backs / total number of last layer belts (I think...).
+    Keep in mind that loop-back systems will take a short time before the system is fully propagated.
+    This means that the ratio will always be correct, but the rate will start a little lower than expected
+    (The rates will still be correct much faster than with manifolds).
+</p>
+<p>
+    <i>Actually, with loop-back systems, the rate will theoretically never reach the desired rate. But the actual rate approaches the desired rate so fast, it is negligible.</i>
+</p>
+
+<p>Keep an eye out for redundant splitter-merger pairs! They are common.
+    If all the belts from a splitter is merged back together for the same output belt (or loop-back), you don't have to split it in the first place.
+    These simplifications may be several layers deep.
+</p>
 </body>
 </html>
