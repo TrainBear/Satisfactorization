@@ -3,8 +3,19 @@ import factory from "../../../../factory.js";
 class OutputLayers extends HTMLElement{
     #table;
     #tableRows = [];
+    #initiated;
     connectedCallback(){
+        if(this.#initiated){
+            return;
+        }
+        this.#initiated = true;
         this.#table = factory.createElement("table");
+        this.#table.setAttribute("title", "This table describes how many last layer belts must be " +
+            "merged to get the requested outputs.");
+
+        const caption = factory.createElement("caption");
+        caption.innerText = 'Output Merging'
+        this.#table.append(caption);
 
         const tr = factory.createElement("tr");
         this.#table.append(tr);
@@ -32,16 +43,15 @@ class OutputLayers extends HTMLElement{
         for (let i=0; i<outputLayers.length; i++) {
             const tr = factory.createElement("tr");
             this.#table.append(tr);
+            this.#tableRows.push(tr);
 
             const td1 = factory.createElement("td");
             td1.innerText = outputLayers[i].rate;
             tr.append(td1);
-            this.#tableRows.push(td1);
 
             const td2 = factory.createElement("td");
             td2.innerText = outputLayers[i].belts;
             tr.append(td2);
-            this.#tableRows.push(td2);
         }
     }
 
