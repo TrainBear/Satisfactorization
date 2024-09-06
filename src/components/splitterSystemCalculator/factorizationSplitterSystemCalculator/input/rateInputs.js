@@ -1,7 +1,6 @@
 import {RateInput} from "./rateInput.js";
 import factory from "../../../../factory.js";
 import * as math from "mathjs";
-import Calculator from "../../../../calculator";
 
 export class RateInputs extends HTMLElement {
 
@@ -24,6 +23,27 @@ export class RateInputs extends HTMLElement {
      * @type HTMLInputElement
      */
     #countInput;
+
+    /**
+     * @type Calculator
+     */
+    #calculator;
+
+    /**
+     *
+     * @returns {Calculator}
+     */
+    get calculator(){
+        return this.#calculator;
+    }
+
+    /**
+     *
+     * @param calculator {Calculator}
+     */
+    set calculator(calculator){
+        this.#calculator = calculator;
+    }
 
     connectedCallback() {
         // super.connectedCallback();
@@ -97,6 +117,7 @@ export class RateInputs extends HTMLElement {
 
     #onChange(){
         this.#countInput.valueAsNumber = this.#rateInputs.length;
+        this.#calculator.rates = this.#rateInputs.map(e=>e.rate);
         this.#validChangeCallbackFunctions.forEach(f=>f());
     }
 
@@ -108,14 +129,6 @@ export class RateInputs extends HTMLElement {
         while (this.#rateInputs.length < count){
             this.#addRateInput();
         }
-    }
-
-    /**
-     *
-     * @returns {Calculator}
-     */
-    get calculator(){
-        return new Calculator(this.#rateInputs.map(r=>r.rate));
     }
 }
 window.customElements.define('rate-inputs', RateInputs);

@@ -1,10 +1,13 @@
 import factory from "../../../factory.js";
 import './input/rateInputs.js';
 import './output/calculationDisplay.js';
+import Calculator from "../../../calculator";
 
 export class FactorizationSplitterSystemCalculator extends HTMLElement {
     connectedCallback(){
         // super.connectedCallback();
+
+        const calculator = new Calculator();
 
         const output = factory.createElement('calculation-display');
 
@@ -13,6 +16,7 @@ export class FactorizationSplitterSystemCalculator extends HTMLElement {
         input.subscribeChange(()=>{
             output.update(input.calculator)
         });
+        input.calculator = calculator;
 
 
         this.append(input);

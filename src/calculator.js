@@ -1,5 +1,4 @@
 import * as math from "mathjs";
-import {isUndefined} from "mathjs";
 import {primeFactors} from 'prime-lib';
 
 
@@ -33,23 +32,16 @@ export default class Calculator {
      */
     #adjustedDen;
 
+    /**
+     *
+     * @type {boolean}
+     */
     #isValid = false;
 
-    constructor(rates) {
-        this.#outputRates = rates.filter(r=>!r.equals(0));
-
-        if(this.#outputRates.length <= 1){
-            console.log("Too few parameters");
-            return;
-        }
-        if(this.inputRate <= 0){
-            console.log("Sum of parameters must be > 0");
-            return;
-        }
-
-        this.#calculateRecursive();
-        this.#isValid = true;
-    }
+    /**
+     * @type {Array<number>}
+     */
+    #outputLayers;
 
     get rates(){
         return Array.from(this.#outputRates);
@@ -57,44 +49,35 @@ export default class Calculator {
 
     /**
      *
+     * @param rates {Array<math.Fraction>}
+     */
+    set rates(rates){
+        this.#reset();
+        this.#outputRates = rates.filter(r=>!r.equals(0));
+        // Too few parameters
+        if(this.#outputRates.length <= 1){
+            return;
+        }
+        // Sum of parameters must be > 0
+        if(this.inputRate <= 0){
+            return;
+        }
+        this.#calculateInputRate();
+        this.#calculateLayersRecursive();
+        this.#calculateOutputLayers();
+        this.#isValid = true;
+    }
+
+    /**
+     *
      * @returns {math.Fraction}
      */
     get inputRate(){
-        if(isUndefined(this.#inputRate)){
-            this.#calculateInputRate();
-        }
         return this.#inputRate;
-    }
-
-    #calculateInputRate() {
-        let sum = 0;
-        this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
-        this.#inputRate = sum;
     }
 
     get loopBacks(){
         return this.#loopBacks;
-    }
-
-    #calculateRecursive() {
-
-        const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
-        const gcd = math.gcd(...ratios);
-        const den = gcd.inverse().valueOf();
-        const adjustedDen = den + this.#loopBacks;
-        const factors = primeFactors(adjustedDen);
-
-        for(let i=0; i<factors.length; i++){
-            if (![2,3].includes(factors[i])){
-                this.#loopBacks += 1;
-                this.#calculateRecursive();
-                return;
-            }
-        }
-
-        this.#adjustedDen = adjustedDen;
-        this.#den = den;
-        this.#layers = factors;
     }
 
     /**
@@ -106,6 +89,41 @@ export default class Calculator {
     }
 
     get outputLayers(){
+        return this.#outputLayers;
+    }
+
+    get isValid(){
+        return this.#isValid;
+    }
+
+    #calculateInputRate() {
+        let sum = 0;
+        this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
+        this.#inputRate = sum;
+    }
+
+    #calculateLayersRecursive() {
+
+        const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
+        const gcd = math.gcd(...ratios);
+        const den = gcd.inverse().valueOf();
+        const adjustedDen = den + this.#loopBacks;
+        const factors = primeFactors(adjustedDen);
+
+        for(let i=0; i<factors.length; i++){
+            if (![2,3].includes(factors[i])){
+                this.#loopBacks += 1;
+                this.#calculateLayersRecursive();
+                return;
+            }
+        }
+
+        this.#adjustedDen = adjustedDen;
+        this.#den = den;
+        this.#layers = factors;
+    }
+
+    #calculateOutputLayers(){
         const outputLayers = []
         for (let i=0; i<this.#outputRates.length; i++){
             const ratio = this.#outputRates[i].div(this.inputRate);
@@ -117,10 +135,16 @@ export default class Calculator {
                 belts: a
             })
         }
-        return outputLayers;
+        this.#outputLayers = outputLayers;
     }
 
-    get isValid(){
-        return this.#isValid;
+    #reset() {
+        this.#den = undefined;
+        this.#adjustedDen = undefined;
+        this.#isValid = false;
+        this.#outputRates = null;
+        this.#loopBacks = 0;
+        this.#layers = null;
+        this.#outputLayers = null;
     }
 }
