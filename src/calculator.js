@@ -1,8 +1,12 @@
 import * as math from "mathjs";
 import {primeFactors} from 'prime-lib';
 
+const MAX_LOOP_BACKS = 100_000;
+const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
 
 export default class Calculator {
+
+
     /**
      * @type Array<math.Fraction>
      */
@@ -70,7 +74,9 @@ export default class Calculator {
             return;
         }
         this.#calculateInputRate();
-        this.#calculateLayersRecursive();
+        if(!this.#calculateLayers()){
+            return;
+        }
         this.#calculateOutputLayers();
         this.#statusMessage = "Calculated successfully!";
         this.#isValid = true;
@@ -114,25 +120,42 @@ export default class Calculator {
         this.#inputRate = sum;
     }
 
-    #calculateLayersRecursive() {
+    /**
+     *
+     * @returns {boolean} If operation was successful.
+     */
+    #calculateLayers() {
 
         const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
         const gcd = math.gcd(...ratios);
         const den = gcd.inverse().valueOf();
-        const adjustedDen = den + this.#loopBacks;
-        const factors = primeFactors(adjustedDen);
 
-        for(let i=0; i<factors.length; i++){
-            if (![2,3].includes(factors[i])){
-                this.#loopBacks += 1;
-                this.#calculateLayersRecursive();
-                return;
+        let found = false;
+        let loopBacks = -1;
+        let adjustedDen;
+        let factors;
+        let loops = 0;
+        while(!found){
+            loopBacks++;
+            adjustedDen = den + loopBacks;
+            if (adjustedDen > PRIME_FACTORS_INPUT_LIMIT){
+                this.setInvalid("Some numbers are getting too big.");
+                return false;
+            }
+            factors = primeFactors(adjustedDen);
+            found = !factors.some(f=>f!==2&&f!==3);
+            if(loops++ > MAX_LOOP_BACKS){
+                this.setInvalid("Too many required loop-backs. Current limit is " + MAX_LOOP_BACKS + ". " +
+                    "Are you using a rounded number? Make sure all numbers are exact.");
+                return false;
             }
         }
 
+        this.#loopBacks = loopBacks;
         this.#adjustedDen = adjustedDen;
         this.#den = den;
         this.#layers = factors;
+        return true;
     }
 
     #calculateOutputLayers(){
