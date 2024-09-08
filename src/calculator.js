@@ -43,6 +43,11 @@ export default class Calculator {
      */
     #outputLayers;
 
+    /**
+     * @type string
+     */
+    #statusMessage;
+
     get rates(){
         return Array.from(this.#outputRates);
     }
@@ -53,18 +58,21 @@ export default class Calculator {
      */
     set rates(rates){
         this.#reset();
-        this.#outputRates = rates.filter(r=>!r.equals(0));
+        this.#outputRates = rates.filter(r=>r.n !== 0);
         // Too few parameters
-        if(this.#outputRates.length <= 1){
+        if(this.#outputRates.length < 2){
+            this.#statusMessage = "Too few non-zero parameters.";
             return;
         }
-        // Sum of parameters must be > 0
-        if(this.inputRate <= 0){
+        // Parameters must be positive
+        if(this.#outputRates.some(r=>r.s === -1)){
+            this.#statusMessage = "Parameters must be positive.";
             return;
         }
         this.#calculateInputRate();
         this.#calculateLayersRecursive();
         this.#calculateOutputLayers();
+        this.#statusMessage = "Calculated successfully!";
         this.#isValid = true;
     }
 
@@ -94,6 +102,10 @@ export default class Calculator {
 
     get isValid(){
         return this.#isValid;
+    }
+
+    get statusMessage(){
+        return this.#statusMessage;
     }
 
     #calculateInputRate() {
@@ -146,5 +158,15 @@ export default class Calculator {
         this.#loopBacks = 0;
         this.#layers = null;
         this.#outputLayers = null;
+    }
+
+    /**
+     *
+     * @param message {string} The message to show the user.
+     */
+    setInvalid(message){
+        this.#isValid = false;
+        this.#statusMessage = message;
+        console.error(message);
     }
 }

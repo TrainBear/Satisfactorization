@@ -117,7 +117,24 @@ export class RateInputs extends HTMLElement {
 
     #onChange(){
         this.#countInput.valueAsNumber = this.#rateInputs.length;
-        this.#calculator.rates = this.#rateInputs.map(e=>e.rate);
+        const rates = [];
+        let error = false;
+        for(let i=0; i<this.#rateInputs.length; i++){
+            const rateInput = this.#rateInputs[i];
+            let rate;
+            try{
+                rate = rateInput.rate;
+            }catch (e){
+                this.#calculator.setInvalid("Could not convert " + rateInput.rawValue + "in to a number/fraction.");
+                error = true;
+                break;
+            }
+            rates.push(rate);
+        }
+        if(error){
+            return;
+        }
+        this.#calculator.rates = rates;
         this.#validChangeCallbackFunctions.forEach(f=>f());
     }
 

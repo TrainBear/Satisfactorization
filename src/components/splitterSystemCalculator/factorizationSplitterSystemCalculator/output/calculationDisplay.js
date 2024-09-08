@@ -3,6 +3,7 @@ import './inputRate.js'
 import './loopBacks.js'
 import './layers.js'
 import './outputLayers.js'
+import './statusDisplay.js'
 
 export class CalculationDisplay extends HTMLElement{
 
@@ -10,14 +11,13 @@ export class CalculationDisplay extends HTMLElement{
     #layers;
     #loopBacks;
     #outputLayers;
-    #invalidInputMessage;
+    #statusMessage;
     #div;
     connectedCallback(){
         // super.connectedCallback();
 
-        this.#invalidInputMessage = factory.createElement('p');
-        this.#invalidInputMessage.innerText = "Invalid parameters!";
-        this.append(this.#invalidInputMessage);
+        this.#statusMessage = factory.createElement('status-display');
+        this.append(this.#statusMessage);
 
         this.#div = factory.createElement('div');
 
@@ -39,12 +39,12 @@ export class CalculationDisplay extends HTMLElement{
      * @param calculator {Calculator}
      */
     update(calculator){
+        this.#statusMessage.update(calculator);
+
         if(!calculator.isValid){
             this.#div.remove();
-            this.append(this.#invalidInputMessage);
             return;
         }
-        this.#invalidInputMessage.remove();
         this.append(this.#div);
 
         this.#inputRate.update(calculator);
