@@ -27,6 +27,10 @@ export default class UrlParamsManager {
     }
 
     #update() {
+        if(!this.#calculator.isValid){
+            window.history.replaceState(null, "", "?");
+            return;
+        }
         const rates = this.#calculator.rates;
         let urlVariable = "?outputRates="
         rates.forEach(r=>{
