@@ -84,7 +84,7 @@ export class RateInputs extends HTMLElement {
         rateInput.subscribeChange(this.#onChange.bind(this));
         rateInput.subscribeDelete(()=>this.#removeRateInput(rateInput));
         if(this.#rateInputs.length > 0){
-            rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rate;
+            rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rawValue;
         }else{
             rateInput.rate = math.fraction(0);
         }
@@ -125,13 +125,14 @@ export class RateInputs extends HTMLElement {
             try{
                 rate = rateInput.rate;
             }catch (e){
-                this.#calculator.setInvalid("Could not convert " + rateInput.rawValue + "in to a number/fraction.");
+                this.#calculator.setInvalid("Could not convert '" + rateInput.rawValue + "' to a number/fraction.");
                 error = true;
                 break;
             }
             rates.push(rate);
         }
         if(error){
+            this.#validChangeCallbackFunctions.forEach(f=>f());
             return;
         }
         this.#calculator.rates = rates;
