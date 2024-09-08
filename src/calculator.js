@@ -50,7 +50,12 @@ export default class Calculator {
     /**
      * @type string
      */
-    #statusMessage;
+    #statusMessage= "Add parameters.";
+
+    /**
+     * @type Array<function>
+     */
+    #onChangeCallbackMethods = [];
 
     get rates(){
         return Array.from(this.#outputRates);
@@ -65,12 +70,12 @@ export default class Calculator {
         this.#outputRates = rates.filter(r=>r.n !== 0);
         // Too few parameters
         if(this.#outputRates.length < 2){
-            this.#statusMessage = "Too few non-zero parameters.";
+            this.setInvalid("Too few non-zero parameters.");
             return;
         }
         // Parameters must be positive
         if(this.#outputRates.some(r=>r.s === -1)){
-            this.#statusMessage = "Parameters must be positive.";
+            this.setInvalid("Parameters must be positive.");
             return;
         }
         this.#calculateInputRate();
@@ -80,6 +85,7 @@ export default class Calculator {
         this.#calculateOutputLayers();
         this.#statusMessage = "Calculated successfully!";
         this.#isValid = true;
+        this.#onChange();
     }
 
     /**
@@ -191,5 +197,21 @@ export default class Calculator {
         this.#isValid = false;
         this.#statusMessage = message;
         console.warn(message);
+        this.#onChange();
+    }
+
+    subscribeChange(callback){
+        this.#onChangeCallbackMethods.push(callback);
+    }
+
+    unsubscribeChange(callback){
+        const index = this.#onChangeCallbackMethods.indexOf(callback);
+        if (index > -1) {
+            this.#onChangeCallbackMethods.splice(index, 1);
+        }
+    }
+
+    #onChange(){
+        this.#onChangeCallbackMethods.forEach(f=>f());
     }
 }

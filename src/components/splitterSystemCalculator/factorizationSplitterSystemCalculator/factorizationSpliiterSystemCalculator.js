@@ -9,18 +9,15 @@ export class FactorizationSplitterSystemCalculator extends HTMLElement {
 
         const calculator = new Calculator();
 
-        const output = factory.createElement('calculation-display');
-
         const input = factory.createElement('rate-inputs');
         input.setAttribute("legend", "Parameters")
-        input.subscribeChange(()=>{
-            output.update(input.calculator)
-        });
+        this.append(input);
         input.calculator = calculator;
 
-
-        this.append(input);
+        const output = factory.createElement('calculation-display');
         this.append(output);
+
+        output.calculator = calculator;
     }
 }
 

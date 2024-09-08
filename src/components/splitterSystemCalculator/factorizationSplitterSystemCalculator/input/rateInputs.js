@@ -107,14 +107,6 @@ export class RateInputs extends HTMLElement {
         this.#onChange();
     }
 
-    /**
-     * Add behaviour for when a valid change has happened
-     * @param callback function
-     */
-    subscribeChange(callback){
-        this.#validChangeCallbackFunctions.push(callback);
-    }
-
     #onChange(){
         this.#countInput.valueAsNumber = this.#rateInputs.length;
         const rates = [];
@@ -132,11 +124,9 @@ export class RateInputs extends HTMLElement {
             rates.push(rate);
         }
         if(error){
-            this.#validChangeCallbackFunctions.forEach(f=>f());
             return;
         }
         this.#calculator.rates = rates;
-        this.#validChangeCallbackFunctions.forEach(f=>f());
     }
 
     #onCountSet(){

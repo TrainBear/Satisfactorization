@@ -7,6 +7,16 @@ export class InputRate extends HTMLElement {
     #textElement;
 
     #initiated = false;
+    #calculator;
+
+    set calculator(calculator){
+        if(this.#calculator !== undefined){
+            this.#calculator.unsubscribeChange(this.#update.bind(this));
+        }
+        this.#calculator = calculator;
+        this.#calculator.subscribeChange(this.#update.bind(this));
+        this.#update();
+    }
 
     connectedCallback() {
         // super.connectedCallback();
@@ -19,12 +29,15 @@ export class InputRate extends HTMLElement {
     }
 
     /**
-     *
-     * @param calculator
      * @return never
      */
-    update(calculator) {
-        this.#textElement.innerText = "Input rate: " + calculator.inputRate.toString() + " items / minute";
+    #update() {
+        if(this.#calculator.isValid){
+            this.append(this.#textElement);
+            this.#textElement.innerText = "Input rate: " + this.#calculator.inputRate.toString() + " items / minute";
+        }else{
+            this.#textElement.remove();
+        }
     }
 }
 
