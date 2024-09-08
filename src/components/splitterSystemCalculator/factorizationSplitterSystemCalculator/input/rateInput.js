@@ -74,6 +74,10 @@ export class RateInput extends HTMLElement {
         }
     }
 
+    get rawValue(){
+        return this.#inputField.value;
+    }
+
     /**
      *
      * @param value {math.Fraction}

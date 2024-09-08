@@ -1,9 +1,12 @@
 import * as math from "mathjs";
-import {isUndefined} from "mathjs";
 import {primeFactors} from 'prime-lib';
 
+const MAX_LOOP_BACKS = 100_000;
+const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
 
 export default class Calculator {
+
+
     /**
      * @type Array<math.Fraction>
      */
@@ -33,23 +36,26 @@ export default class Calculator {
      */
     #adjustedDen;
 
+    /**
+     *
+     * @type {boolean}
+     */
     #isValid = false;
 
-    constructor(rates) {
-        this.#outputRates = rates.filter(r=>!r.equals(0));
+    /**
+     * @type {Array<number>}
+     */
+    #outputLayers;
 
-        if(this.#outputRates.length <= 1){
-            console.log("Too few parameters");
-            return;
-        }
-        if(this.inputRate <= 0){
-            console.log("Sum of parameters must be > 0");
-            return;
-        }
+    /**
+     * @type string
+     */
+    #statusMessage= "Add parameters.";
 
-        this.#calculateRecursive();
-        this.#isValid = true;
-    }
+    /**
+     * @type Array<function>
+     */
+    #onChangeCallbackMethods = [];
 
     get rates(){
         return Array.from(this.#outputRates);
@@ -57,44 +63,41 @@ export default class Calculator {
 
     /**
      *
+     * @param rates {Array<math.Fraction>}
+     */
+    set rates(rates){
+        this.#reset();
+        this.#outputRates = rates.filter(r=>r.n !== 0);
+        // Too few parameters
+        if(this.#outputRates.length < 2){
+            this.setInvalid("Too few non-zero parameters.");
+            return;
+        }
+        // Parameters must be positive
+        if(this.#outputRates.some(r=>r.s === -1)){
+            this.setInvalid("Parameters must be positive.");
+            return;
+        }
+        this.#calculateInputRate();
+        if(!this.#calculateLayers()){
+            return;
+        }
+        this.#calculateOutputLayers();
+        this.#statusMessage = "Calculated successfully!";
+        this.#isValid = true;
+        this.#onChange();
+    }
+
+    /**
+     *
      * @returns {math.Fraction}
      */
     get inputRate(){
-        if(isUndefined(this.#inputRate)){
-            this.#calculateInputRate();
-        }
         return this.#inputRate;
-    }
-
-    #calculateInputRate() {
-        let sum = 0;
-        this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
-        this.#inputRate = sum;
     }
 
     get loopBacks(){
         return this.#loopBacks;
-    }
-
-    #calculateRecursive() {
-
-        const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
-        const gcd = math.gcd(...ratios);
-        const den = gcd.inverse().valueOf();
-        const adjustedDen = den + this.#loopBacks;
-        const factors = primeFactors(adjustedDen);
-
-        for(let i=0; i<factors.length; i++){
-            if (![2,3].includes(factors[i])){
-                this.#loopBacks += 1;
-                this.#calculateRecursive();
-                return;
-            }
-        }
-
-        this.#adjustedDen = adjustedDen;
-        this.#den = den;
-        this.#layers = factors;
     }
 
     /**
@@ -106,6 +109,62 @@ export default class Calculator {
     }
 
     get outputLayers(){
+        return this.#outputLayers;
+    }
+
+    get isValid(){
+        return this.#isValid;
+    }
+
+    get statusMessage(){
+        return this.#statusMessage;
+    }
+
+    #calculateInputRate() {
+        let sum = 0;
+        this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
+        this.#inputRate = sum;
+    }
+
+    /**
+     *
+     * @returns {boolean} If operation was successful.
+     */
+    #calculateLayers() {
+
+        const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
+        const gcd = math.gcd(...ratios);
+        const den = gcd.inverse().valueOf();
+
+        let found = false;
+        let loopBacks = -1;
+        let adjustedDen;
+        let factors;
+        let loops = 0;
+        while(!found){
+            loopBacks++;
+            adjustedDen = den + loopBacks;
+            if (adjustedDen > PRIME_FACTORS_INPUT_LIMIT){
+                this.setInvalid("Some numbers are getting too big.");
+                return false;
+            }
+            factors = primeFactors(adjustedDen);
+            found = !factors.some(f=>f!==2&&f!==3);
+            if(loops++ > MAX_LOOP_BACKS){
+                this.setInvalid("Too many required loop-backs. Current limit is " + MAX_LOOP_BACKS + ". " +
+                    "Are you using a rounded number? Make sure all numbers are exact.");
+                return false;
+            }
+        }
+
+        this.#loopBacks = loopBacks;
+        this.#adjustedDen = adjustedDen;
+        this.#den = den;
+        this.#layers = factors;
+        return true;
+    }
+
+    #calculateOutputLayers(){
         const outputLayers = []
         for (let i=0; i<this.#outputRates.length; i++){
             const ratio = this.#outputRates[i].div(this.inputRate);
@@ -117,10 +176,42 @@ export default class Calculator {
                 belts: a
             })
         }
-        return outputLayers;
+        this.#outputLayers = outputLayers;
     }
 
-    get isValid(){
-        return this.#isValid;
+    #reset() {
+        this.#den = undefined;
+        this.#adjustedDen = undefined;
+        this.#isValid = false;
+        this.#outputRates = null;
+        this.#loopBacks = 0;
+        this.#layers = null;
+        this.#outputLayers = null;
+    }
+
+    /**
+     *
+     * @param message {string} The message to show the user.
+     */
+    setInvalid(message){
+        this.#isValid = false;
+        this.#statusMessage = message;
+        console.warn(message);
+        this.#onChange();
+    }
+
+    subscribeChange(callback){
+        this.#onChangeCallbackMethods.push(callback);
+    }
+
+    unsubscribeChange(callback){
+        const index = this.#onChangeCallbackMethods.indexOf(callback);
+        if (index > -1) {
+            this.#onChangeCallbackMethods.splice(index, 1);
+        }
+    }
+
+    #onChange(){
+        this.#onChangeCallbackMethods.forEach(f=>f());
     }
 }

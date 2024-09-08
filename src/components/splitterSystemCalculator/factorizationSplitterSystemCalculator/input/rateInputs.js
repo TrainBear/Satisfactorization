@@ -1,7 +1,6 @@
 import {RateInput} from "./rateInput.js";
 import factory from "../../../../factory.js";
 import * as math from "mathjs";
-import Calculator from "../../../../calculator";
 
 export class RateInputs extends HTMLElement {
 
@@ -24,6 +23,27 @@ export class RateInputs extends HTMLElement {
      * @type HTMLInputElement
      */
     #countInput;
+
+    /**
+     * @type Calculator
+     */
+    #calculator;
+
+    /**
+     *
+     * @returns {Calculator}
+     */
+    get calculator(){
+        return this.#calculator;
+    }
+
+    /**
+     *
+     * @param calculator {Calculator}
+     */
+    set calculator(calculator){
+        this.#calculator = calculator;
+    }
 
     connectedCallback() {
         // super.connectedCallback();
@@ -64,7 +84,7 @@ export class RateInputs extends HTMLElement {
         rateInput.subscribeChange(this.#onChange.bind(this));
         rateInput.subscribeDelete(()=>this.#removeRateInput(rateInput));
         if(this.#rateInputs.length > 0){
-            rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rate;
+            rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rawValue;
         }else{
             rateInput.rate = math.fraction(0);
         }
@@ -87,17 +107,26 @@ export class RateInputs extends HTMLElement {
         this.#onChange();
     }
 
-    /**
-     * Add behaviour for when a valid change has happened
-     * @param callback function
-     */
-    subscribeChange(callback){
-        this.#validChangeCallbackFunctions.push(callback);
-    }
-
     #onChange(){
         this.#countInput.valueAsNumber = this.#rateInputs.length;
-        this.#validChangeCallbackFunctions.forEach(f=>f());
+        const rates = [];
+        let error = false;
+        for(let i=0; i<this.#rateInputs.length; i++){
+            const rateInput = this.#rateInputs[i];
+            let rate;
+            try{
+                rate = rateInput.rate;
+            }catch (e){
+                this.#calculator.setInvalid("Could not convert '" + rateInput.rawValue + "' to a number/fraction.");
+                error = true;
+                break;
+            }
+            rates.push(rate);
+        }
+        if(error){
+            return;
+        }
+        this.#calculator.rates = rates;
     }
 
     #onCountSet(){
@@ -108,14 +137,6 @@ export class RateInputs extends HTMLElement {
         while (this.#rateInputs.length < count){
             this.#addRateInput();
         }
-    }
-
-    /**
-     *
-     * @returns {Calculator}
-     */
-    get calculator(){
-        return new Calculator(this.#rateInputs.map(r=>r.rate));
     }
 }
 window.customElements.define('rate-inputs', RateInputs);

@@ -6,6 +6,16 @@ export class LoopBacks extends HTMLElement {
      */
     #textElement;
     #initiated;
+    #calculator;
+
+    set calculator(calculator){
+        if(this.#calculator !== undefined){
+            this.#calculator.unsubscribeChange(this.#update.bind(this));
+        }
+        this.#calculator = calculator;
+        this.#calculator.subscribeChange(this.#update.bind(this));
+        this.#update();
+    }
 
     connectedCallback() {
         // super.connectedCallback();
@@ -19,12 +29,15 @@ export class LoopBacks extends HTMLElement {
     }
 
     /**
-     *
-     * @param calculator {Calculator}
      * @return never
      */
-    update(calculator) {
-        this.#textElement.innerText = "loop-backs: " + calculator.loopBacks.toString() + " belts";
+    #update() {
+        if(this.#calculator.isValid){
+            this.append(this.#textElement);
+            this.#textElement.innerText = "loop-backs: " + this.#calculator.loopBacks.toString() + " belts";
+        }else{
+            this.#textElement.remove();
+        }
     }
 }
 

@@ -4,6 +4,17 @@ class OutputLayers extends HTMLElement{
     #table;
     #tableRows = [];
     #initiated;
+    #calculator;
+
+    set calculator(calculator){
+        if(this.#calculator !== undefined){
+            this.#calculator.unsubscribeChange(this.#update.bind(this));
+        }
+        this.#calculator = calculator;
+        this.#calculator.subscribeChange(this.#update.bind(this));
+        this.#update();
+    }
+
     connectedCallback(){
         if(this.#initiated){
             return;
@@ -33,12 +44,17 @@ class OutputLayers extends HTMLElement{
 
     /**
      *
-     * @param calculator {Calculator}
      */
-    update(calculator){
+    #update(){
         this.#resetRows();
 
-        const outputLayers = calculator.outputLayers;
+        if(!this.#calculator.isValid){
+            this.#table.remove();
+            return;
+        }
+        this.append(this.#table);
+
+        const outputLayers = this.#calculator.outputLayers;
 
         for (let i=0; i<outputLayers.length; i++) {
             const tr = factory.createElement("tr");
