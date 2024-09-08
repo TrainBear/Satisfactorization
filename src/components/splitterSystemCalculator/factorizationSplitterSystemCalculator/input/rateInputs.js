@@ -46,6 +46,9 @@ export class RateInputs extends HTMLElement {
         this.#calculator = calculator;
 
         // Set fields from calculator
+        if(!this.#calculator.isValid){
+            return;
+        }
         const rates = this.#calculator.rates
         rates.forEach(r=>{
             this.#addRateInput().rate = r;
