@@ -2,12 +2,15 @@ import factory from "../../../factory.js";
 import './input/rateInputs.js';
 import './output/calculationDisplay.js';
 import Calculator from "../../../calculator";
+import UrlParamsManager from "../../../urlParamsManager.js";
 
 export class FactorizationSplitterSystemCalculator extends HTMLElement {
     connectedCallback(){
         // super.connectedCallback();
 
         const calculator = new Calculator();
+
+        const urlManager = new UrlParamsManager(calculator);
 
         const input = factory.createElement('rate-inputs');
         input.setAttribute("legend", "Parameters")
@@ -16,7 +19,6 @@ export class FactorizationSplitterSystemCalculator extends HTMLElement {
 
         const output = factory.createElement('calculation-display');
         this.append(output);
-
         output.calculator = calculator;
     }
 }

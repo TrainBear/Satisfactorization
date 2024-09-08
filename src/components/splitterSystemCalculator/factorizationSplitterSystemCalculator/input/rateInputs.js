@@ -1,6 +1,7 @@
 import {RateInput} from "./rateInput.js";
 import factory from "../../../../factory.js";
 import * as math from "mathjs";
+import {forEach} from "mathjs";
 
 export class RateInputs extends HTMLElement {
 
@@ -43,6 +44,12 @@ export class RateInputs extends HTMLElement {
      */
     set calculator(calculator){
         this.#calculator = calculator;
+
+        // Set fields from calculator
+        const rates = this.#calculator.rates
+        rates.forEach(r=>{
+            this.#addRateInput().rate = r;
+        })
     }
 
     connectedCallback() {
@@ -77,6 +84,7 @@ export class RateInputs extends HTMLElement {
         const form = factory.createElement("form");
         form.append(this.#fieldSet);
         this.append(form);
+
     }
 
     #addRateInput(){
@@ -92,6 +100,7 @@ export class RateInputs extends HTMLElement {
         this.#rateInputs.push(rateInput);
         this.#fieldSet.append(rateInput);
         this.#onChange();
+        return rateInput;
     }
 
     /**
