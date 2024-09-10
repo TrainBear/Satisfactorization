@@ -196,7 +196,6 @@ export default class Calculator {
     setInvalid(message){
         this.#isValid = false;
         this.#statusMessage = message;
-        console.warn(message);
         this.#onChange();
     }
 

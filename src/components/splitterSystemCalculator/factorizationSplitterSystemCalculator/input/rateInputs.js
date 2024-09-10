@@ -51,7 +51,7 @@ export class RateInputs extends HTMLElement {
         }
         const rates = this.#calculator.rates
         rates.forEach(r=>{
-            this.#addRateInput().rate = r;
+            this.#addRateInput(r);
         })
     }
 
@@ -75,7 +75,7 @@ export class RateInputs extends HTMLElement {
         const addButton = factory.createElement("button");
         addButton.setAttribute("type", "button");
         addButton.innerText = "Increment";
-        addButton.addEventListener('click', this.#addRateInput.bind(this));
+        addButton.addEventListener('click', ()=>this.#addRateInput());
 
         // Fieldset
         this.#fieldSet = factory.createElement("fieldset");
@@ -90,20 +90,29 @@ export class RateInputs extends HTMLElement {
 
     }
 
-    #addRateInput(){
+    /**
+     *
+     * @param startValue {math.Fraction}
+     */
+    #addRateInput(startValue = undefined){
         const rateInput = factory.createElement("rate-input");
         rateInput.subscribeChange(this.#onChange.bind(this));
         rateInput.subscribeDelete(()=>this.#removeRateInput(rateInput));
-        if(this.#rateInputs.length > 0){
-            rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rawValue;
+
+
+        if(startValue === undefined){
+            if(this.#rateInputs.length > 0){
+                rateInput.rate = this.#rateInputs[this.#rateInputs.length-1].rawValue;
+            }else{
+                rateInput.rate = math.fraction(0);
+            }
         }else{
-            rateInput.rate = math.fraction(0);
+            rateInput.rate = startValue;
         }
 
         this.#rateInputs.push(rateInput);
         this.#fieldSet.append(rateInput);
         this.#onChange();
-        return rateInput;
     }
 
     /**
