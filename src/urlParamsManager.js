@@ -12,13 +12,12 @@ export default class UrlParamsManager {
     constructor(calculator) {
         this.#calculator = calculator;
         this.#calculator.subscribeChange(this.#update.bind(this));
-
-        // TODO: Read params from url, and put them in the calculator.
         const url = new URL(window.location.href);
         const params = url.searchParams;
         const rateCollectionString = params.get("outputRates");
-        if(rateCollectionString === null){
-            return; // No rates in url
+        if(rateCollectionString === null){ // There are no rates in url
+            window.history.replaceState(null, "", "?");
+            return;
         }
         this.#calculator.rates = rateCollectionString
             .split('r')
