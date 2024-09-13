@@ -53,6 +53,7 @@ export class RateInputs extends HTMLElement {
         rates.forEach(r=>{
             this.#addRateInput(r);
         })
+        this.#onChange();
     }
 
     connectedCallback() {
@@ -75,7 +76,10 @@ export class RateInputs extends HTMLElement {
         const addButton = factory.createElement("button");
         addButton.setAttribute("type", "button");
         addButton.innerText = "Increment";
-        addButton.addEventListener('click', ()=>this.#addRateInput());
+        addButton.addEventListener('click', ()=> {
+            this.#addRateInput();
+            this.#onChange();
+        });
 
         // Fieldset
         this.#fieldSet = factory.createElement("fieldset");
@@ -97,7 +101,10 @@ export class RateInputs extends HTMLElement {
     #addRateInput(startValue = undefined){
         const rateInput = factory.createElement("rate-input");
         rateInput.subscribeChange(this.#onChange.bind(this));
-        rateInput.subscribeDelete(()=>this.#removeRateInput(rateInput));
+        rateInput.subscribeDelete(()=> {
+            this.#removeRateInput(rateInput);
+            this.#onChange();
+        });
 
 
         if(startValue === undefined){
@@ -112,7 +119,6 @@ export class RateInputs extends HTMLElement {
 
         this.#rateInputs.push(rateInput);
         this.#fieldSet.append(rateInput);
-        this.#onChange();
     }
 
     /**
@@ -125,7 +131,6 @@ export class RateInputs extends HTMLElement {
         if(document.contains(rateInput)){
             rateInput.remove();
         }
-        this.#onChange();
     }
 
     #onChange(){
@@ -158,6 +163,7 @@ export class RateInputs extends HTMLElement {
         while (this.#rateInputs.length < count){
             this.#addRateInput();
         }
+        this.#onChange();
     }
 }
 window.customElements.define('rate-inputs', RateInputs);
