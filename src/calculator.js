@@ -1,7 +1,5 @@
 import * as math from "mathjs";
-import {primeFactors} from 'prime-lib';
-
-const MAX_LOOP_BACKS = 100_000;
+const MAX_LOOP_BACKS = 1_000_000;
 const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
 
 export default class Calculator {
@@ -145,11 +143,11 @@ export default class Calculator {
             loopBacks++;
             adjustedDen = den + loopBacks;
             if (adjustedDen > PRIME_FACTORS_INPUT_LIMIT){
-                this.setInvalid("Some numbers are getting too big.");
+                this.setInvalid("Inverted GCD of rates is too big");
                 return false;
             }
-            factors = primeFactors(adjustedDen);
-            found = !factors.some(f=>f!==2&&f!==3);
+            factors = Calculator.#specializedFactorize(adjustedDen);
+            found = factors!== null;
             if(loops++ > MAX_LOOP_BACKS){
                 this.setInvalid("Too many required loop-backs. Current limit is " + MAX_LOOP_BACKS + ". " +
                     "Are you using a rounded number? Make sure all numbers are exact.");
@@ -212,5 +210,26 @@ export default class Calculator {
 
     #onChange(){
         this.#onChangeCallbackMethods.forEach(f=>f());
+    }
+
+    /**
+     * Prime-factorizes n, but only if product n can consist of the factors of twos and threes.
+     * @param n {number} the number to factorize
+     * @returns {Array<number>|null} Factors if success, null otherwise.
+     */
+    static #specializedFactorize(n){
+        let factors = [];
+        while(n%2===0){
+            factors.push(2);
+            n/=2;
+        }
+        while(n%3===0){
+            factors.push(3);
+            n/=3;
+        }
+        if(n!==1){
+            return null;
+        }
+        return factors;
     }
 }
