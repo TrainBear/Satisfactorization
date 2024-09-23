@@ -34,7 +34,7 @@ export class InputRate extends HTMLElement {
     #update() {
         if(this.#calculator.isValid){
             this.append(this.#textElement);
-            this.#textElement.innerText = "Input rate: " + this.#calculator.inputRate.toString() + " items / minute";
+            this.#textElement.innerText = "Input rate: " + this.#calculator.inputRate.toString() + "/m";
         }else{
             this.#textElement.remove();
         }
