@@ -1,6 +1,5 @@
 import factory from "../../../../factory.js";
 import './inputRate.js'
-import './loopBacks.js'
 import './layers.js'
 import './outputLayers.js'
 import './statusDisplay.js'
@@ -36,7 +35,6 @@ export class CalculationDisplay extends HTMLElement{
         this.#inputRate.calculator = calculator;
         this.#layers.calculator = calculator;
         this.#outputLayers.calculator = calculator;
-        this.#loopBacks.calculator = calculator;
     }
 }
 

@@ -31,13 +31,21 @@ class OutputLayers extends HTMLElement{
         const tr = factory.createElement("tr");
         this.#table.append(tr);
 
+        const th0 = factory.createElement("th");
+        th0.innerText = "Name";
+        tr.append(th0);
+
         const th1 = factory.createElement("th");
-        th1.innerText = "Output rate";
+        th1.innerText = "Rate";
         tr.append(th1);
 
         const th2 = factory.createElement("th");
         th2.innerText = "Last Layer Belts";
         tr.append(th2);
+
+        const th3 = factory.createElement("th");
+        th3.innerText = "Layer Composition"
+        tr.append(th3);
 
         this.append(this.#table);
     }
@@ -54,21 +62,39 @@ class OutputLayers extends HTMLElement{
         }
         this.append(this.#table);
 
-        const outputLayers = this.#calculator.outputLayers;
+        const outputLayers = this.#calculator.outputNumerators;
 
         for (let i=0; i<outputLayers.length; i++) {
-            const tr = factory.createElement("tr");
-            this.#table.append(tr);
-            this.#tableRows.push(tr);
-
-            const td1 = factory.createElement("td");
-            td1.innerText = outputLayers[i].rate;
-            tr.append(td1);
-
-            const td2 = factory.createElement("td");
-            td2.innerText = outputLayers[i].belts;
-            tr.append(td2);
+            const name = "output #" + i;
+            const data = outputLayers[i];
+            this.#addRow(name, data.rate, data.lastLayerBelts, data.layerComposition);
         }
+        if(this.#calculator.loopBacks !== 0){
+            const lbData = this.#calculator.loopBackData;
+            this.#addRow("loop-back", lbData.rate, lbData.lastLayerBelts, lbData.layerComposition);
+        }
+    }
+
+    #addRow(name, rate, lastLayerBelts, layerComposition){
+        const tr = factory.createElement("tr");
+        this.#table.append(tr);
+        this.#tableRows.push(tr);
+
+        const td0 = factory.createElement('td');
+        td0.innerText = name;
+        tr.append(td0);
+
+        const td1 = factory.createElement("td");
+        td1.innerText = rate + "/m";
+        tr.append(td1);
+
+        const td2 = factory.createElement("td");
+        td2.innerText = lastLayerBelts;
+        tr.append(td2);
+
+        const td3 = factory.createElement('td');
+        td3.innerText = layerComposition;
+        tr.append(td3);
     }
 
     #resetRows(){

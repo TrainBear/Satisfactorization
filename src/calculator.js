@@ -1,4 +1,5 @@
 import * as math from "mathjs";
+
 const MAX_LOOP_BACKS = 1_000_000;
 const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
 
@@ -20,6 +21,8 @@ export default class Calculator {
      * @type {number}
      */
     #loopBacks = 0;
+
+    #loopBackData
 
     /**
      * @type Array<number>
@@ -43,7 +46,7 @@ export default class Calculator {
     /**
      * @type {Array<number>}
      */
-    #outputLayers;
+    #outputNumerators;
 
     /**
      * @type string
@@ -64,26 +67,34 @@ export default class Calculator {
      * @param rates {Array<math.Fraction>}
      */
     set rates(rates){
-        this.#reset();
-        this.#outputRates = rates.filter(r=>r.n !== 0);
-        // Too few parameters
-        if(this.#outputRates.length < 2){
-            this.setInvalid("Too few non-zero parameters.");
-            return;
+
+        try{
+            this.#reset();
+            this.#outputRates = rates.filter(r=>r.n !== 0);
+            // Too few parameters
+            if(this.#outputRates.length < 2){
+                this.setInvalid("Too few non-zero parameters.");
+                return;
+            }
+            // Parameters must be positive
+            if(this.#outputRates.some(r=>r.s === -1)){
+                this.setInvalid("Parameters must be positive.");
+                return;
+            }
+            this.#calculateInputRate();
+            if(!this.#calculateLayers()){
+                return;
+            }
+            this.#calculateOutputData();
+            this.#calculateLoopBackData();
+            this.#statusMessage = "Calculated successfully!";
+            this.#isValid = true;
+        }catch (e){
+            this.setInvalid("Unhandled calculation error.");
+            console.error("Unhandled calculation error: " + e.message);
+        }finally {
+            this.#onChange();
         }
-        // Parameters must be positive
-        if(this.#outputRates.some(r=>r.s === -1)){
-            this.setInvalid("Parameters must be positive.");
-            return;
-        }
-        this.#calculateInputRate();
-        if(!this.#calculateLayers()){
-            return;
-        }
-        this.#calculateOutputLayers();
-        this.#statusMessage = "Calculated successfully!";
-        this.#isValid = true;
-        this.#onChange();
     }
 
     /**
@@ -98,6 +109,10 @@ export default class Calculator {
         return this.#loopBacks;
     }
 
+    get loopBackData(){
+        return this.#loopBackData;
+    }
+
     /**
      *
      * @returns {Array<number>}
@@ -106,8 +121,8 @@ export default class Calculator {
         return this.#layers;
     }
 
-    get outputLayers(){
-        return this.#outputLayers;
+    get outputNumerators(){
+        return this.#outputNumerators;
     }
 
     get isValid(){
@@ -162,19 +177,59 @@ export default class Calculator {
         return true;
     }
 
-    #calculateOutputLayers(){
-        const outputLayers = []
+    #calculateOutputData(){
+        const outputData = []
         for (let i=0; i<this.#outputRates.length; i++){
-            const ratio = this.#outputRates[i].div(this.inputRate);
-            const den = this.#den;
-            const x = den/ratio.d;
-            let a = ratio.n * x;
-            outputLayers.push({
+            const lastLayerBelts = this.#lastLayerBeltsOf(this.#outputRates[i]);
+            const layerComposition = this.#layerCompositionOf(lastLayerBelts);
+            outputData.push({
                 rate: this.#outputRates[i],
-                belts: a
+                lastLayerBelts: lastLayerBelts,
+                layerComposition: layerComposition
             })
         }
-        this.#outputLayers = outputLayers;
+        this.#outputNumerators = outputData;
+    }
+
+    /**
+     *
+     * @param rate {math.Fraction}
+     * @returns {number}
+     */
+    #lastLayerBeltsOf(rate) {
+        // lastLayerBelts
+        const ratio = rate.div(this.inputRate);
+        const den = this.#den;
+        const x = den / ratio.d;
+        return ratio.n * x;
+    }
+
+    /**
+     *
+     * @param outputNumerator {number}
+     */
+    #layerCompositionOf(outputNumerator){
+        let result = [];
+        let a = 0;
+        let l = this.#layers;
+        let loopLimit = 100;
+        while(a < outputNumerator){
+            let b = this.#adjustedDen;
+            for (let i=0; i<l.length; i++){
+                b /= l[i];
+                if(a+b <= outputNumerator){
+                    a += b;
+                    result.push(i+1);
+                    break;
+                }
+            }
+            loopLimit--;
+            if(loopLimit <= 0){
+                throw Error("Looping too much...");
+            }
+        }
+        // result.sort((a, b) => a - b);
+        return result;
     }
 
     #reset() {
@@ -184,7 +239,7 @@ export default class Calculator {
         this.#outputRates = null;
         this.#loopBacks = 0;
         this.#layers = null;
-        this.#outputLayers = null;
+        this.#outputNumerators = null;
     }
 
     /**
@@ -231,5 +286,19 @@ export default class Calculator {
             return null;
         }
         return factors;
+    }
+
+    #calculateLoopBackData() {
+        const rate =
+            math.fraction(this.#loopBacks)
+            .mul(this.#inputRate)
+            .div(this.#den);
+        const lastLayerBelts = this.#lastLayerBeltsOf(rate);
+        const layerComposition = this.#layerCompositionOf(lastLayerBelts);
+        this.#loopBackData = {
+            rate: rate,
+            lastLayerBelts: lastLayerBelts,
+            layerComposition: layerComposition
+        }
     }
 }
