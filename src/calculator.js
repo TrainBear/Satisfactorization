@@ -147,6 +147,10 @@ export default class Calculator {
         return this.#statusMessage;
     }
 
+    get combinedRate(){
+        return this.#inputRate + this.#loopBacks * this.#inputRate / this.#den;
+    }
+
     #calculateInputRate() {
         let sum = 0;
         this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
@@ -314,7 +318,6 @@ export default class Calculator {
             math.fraction(this.#loopBacks)
             .mul(this.#inputRate)
             .div(this.#den);
-        console.log(rate.toFraction());
         const lastLayerBelts = this.#lastLayerBeltsOf(rate);
         const layerComposition = this.#layerCompositionOf(lastLayerBelts);
         this.#loopBackData = {

@@ -1,8 +1,9 @@
 import factory from "../../../../factory.js";
-import './inputRate.js'
-import './layers.js'
-import './outputLayers.js'
-import './statusDisplay.js'
+import './inputRate.js';
+import './layers.js';
+import './outputLayers.js';
+import './statusDisplay.js';
+import './resultCopy.js';
 
 export class CalculationDisplay extends HTMLElement{
 
@@ -11,6 +12,7 @@ export class CalculationDisplay extends HTMLElement{
     #loopBacks;
     #outputLayers;
     #statusMessage;
+    #resultCopy;
     connectedCallback(){
         // super.connectedCallback();
 
@@ -28,6 +30,9 @@ export class CalculationDisplay extends HTMLElement{
 
         this.#loopBacks = factory.createElement("loop-backs");
         this.append(this.#loopBacks);
+
+        this.#resultCopy = factory.createElement("result-copy");
+        this.append(this.#resultCopy);
     }
 
     set calculator(calculator){
@@ -35,6 +40,7 @@ export class CalculationDisplay extends HTMLElement{
         this.#inputRate.calculator = calculator;
         this.#layers.calculator = calculator;
         this.#outputLayers.calculator = calculator;
+        this.#resultCopy.calculator = calculator;
     }
 }
 
