@@ -314,7 +314,6 @@ export default class Calculator {
             math.fraction(this.#loopBacks)
             .mul(this.#inputRate)
             .div(this.#den);
-        console.log(rate.toFraction());
         const lastLayerBelts = this.#lastLayerBeltsOf(rate);
         const layerComposition = this.#layerCompositionOf(lastLayerBelts);
         this.#loopBackData = {
