@@ -1,7 +1,6 @@
 import {RateInput} from "./rateInput.js";
 import factory from "../../../../factory.js";
 import * as math from "mathjs";
-import {forEach} from "mathjs";
 
 export class RateInputs extends HTMLElement {
 
