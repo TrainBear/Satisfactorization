@@ -44,7 +44,7 @@ class ResultCopy extends HTMLElement{
         const lb = this.#calculator.loopBackData;
         content += "Layers: " + layers.toString() + "\n";
         for (let i = 0; i < numerators.length; i++){
-            content += "#" + (i+1).toString() + "(" + rates[i] + "/m): "
+            content += "#" + (i+1).toString() + "(" + rates[i].toString() + "/m): "
                 + numerators[i].layerComposition.toString() + "\n";
         }
         if(this.#calculator.loopBacks !== 0){

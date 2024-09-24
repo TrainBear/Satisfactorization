@@ -76,10 +76,10 @@ export class Layers extends HTMLElement {
             tr.append(td1);
 
             const td2 = factory.createElement('td');
-            td2.innerText = currentRate + "/m";
+            td2.innerText = currentRate.toString() + "/m";
             tr.append(td2);
 
-            currentRate /= layers[i];
+            currentRate = currentRate.div(layers[i]);
         }
     }
 
