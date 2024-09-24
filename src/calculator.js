@@ -147,6 +147,10 @@ export default class Calculator {
         return this.#statusMessage;
     }
 
+    get combinedRate(){
+        return this.#inputRate + this.#loopBacks * this.#inputRate / this.#den;
+    }
+
     #calculateInputRate() {
         let sum = 0;
         this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});

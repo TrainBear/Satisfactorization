@@ -7,6 +7,8 @@ export class Layers extends HTMLElement {
     #textElement;
     #initiated = false;
     #calculator;
+    #table;
+    #tableRows = [];
 
     set calculator(calculator){
         if(this.#calculator !== undefined){
@@ -23,17 +25,67 @@ export class Layers extends HTMLElement {
             return;
         }
         this.#initiated = true;
-        this.#textElement = factory.createElement("p");
-        this.#textElement.setAttribute("title", "A list of twos and threes. Start with one belt(input). For every layer(number:x), split every belt from the previous layer with a x-way splitter.");
+
+        this.#table = factory.createElement('table');
+        this.append(this.#table);
+
+        const caption = factory.createElement('caption');
+        caption.innerText = "Layers";
+        this.#table.append(caption);
+
+        const tr = factory.createElement('tr');
+        this.#table.append(tr);
+
+        const th0 = factory.createElement('th');
+        th0.innerText = "#";
+        tr.append(th0);
+
+        const th1 = factory.createElement("th");
+        th1.innerText = "Division";
+        tr.append(th1);
+
+        const th2 = factory.createElement("th");
+        th2.innerText = "Rate";
+        tr.append(th2);
     }
 
     #update() {
 
-        if(this.#calculator.isValid){
-            this.append(this.#textElement);
-            this.#textElement.innerText = "Layers: " + this.#calculator.layers.toString();
-        }else{
-            this.#textElement.remove();
+        if(!this.#calculator.isValid){
+            this.#table.remove();
+            return;
+        }
+        this.append(this.#table);
+
+        this.#resetRows();
+
+        const layers = this.#calculator.layers;
+        let currentRate = this.#calculator.combinedRate;
+
+        for(let i = 0; i<layers.length; i++){
+            const tr = factory.createElement('tr');
+            this.#table.append(tr);
+            this.#tableRows.push(tr);
+
+            const td0 = factory.createElement('td');
+            td0.innerText = (i + 1).toString();
+            tr.append(td0);
+
+            const td1 = factory.createElement('td');
+            td1.innerText = layers[i].toString();
+            tr.append(td1);
+
+            const td2 = factory.createElement('td');
+            td2.innerText = currentRate + "/m";
+            tr.append(td2);
+
+            currentRate /= layers[i];
+        }
+    }
+
+    #resetRows() {
+        while(this.#tableRows.length > 0){
+            this.#tableRows.pop().remove();
         }
     }
 }
