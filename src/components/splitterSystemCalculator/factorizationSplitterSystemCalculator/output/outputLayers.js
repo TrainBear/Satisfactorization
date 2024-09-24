@@ -75,6 +75,13 @@ class OutputLayers extends HTMLElement{
         }
     }
 
+    /**
+     *
+     * @param name
+     * @param rate {math.Fraction}
+     * @param lastLayerBelts
+     * @param layerComposition
+     */
     #addRow(name, rate, lastLayerBelts, layerComposition){
         const tr = factory.createElement("tr");
         this.#table.append(tr);
@@ -85,7 +92,7 @@ class OutputLayers extends HTMLElement{
         tr.append(td0);
 
         const td1 = factory.createElement("td");
-        td1.innerText = rate + "/m";
+        td1.innerText = rate.toString() + "/m";
         tr.append(td1);
 
         const td2 = factory.createElement("td");

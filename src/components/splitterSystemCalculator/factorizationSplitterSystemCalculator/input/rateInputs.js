@@ -11,11 +11,6 @@ export class RateInputs extends HTMLElement {
     #validChangeCallbackFunctions = [];
 
     /**
-     * @type HTMLFieldSetElement
-     */
-    #fieldSet;
-
-    /**
      * @type Array<RateInput>
      */
     #rateInputs = [];
@@ -58,10 +53,6 @@ export class RateInputs extends HTMLElement {
 
     connectedCallback() {
         // super.connectedCallback();
-        // Legend
-        const legend = factory.createElement("legend");
-        legend.innerText = this.getAttribute("legend");
-
         // Count
         const label = factory.createElement("label");
         label.innerText = "Output belt count";
@@ -80,18 +71,8 @@ export class RateInputs extends HTMLElement {
             this.#addRateInput();
             this.#onChange();
         });
-
-        // Fieldset
-        this.#fieldSet = factory.createElement("fieldset");
-        this.#fieldSet.append(legend);
-        this.#fieldSet.append(label);
-        this.#fieldSet.append(addButton);
-
-        // Form
-        const form = factory.createElement("form");
-        form.append(this.#fieldSet);
-        this.append(form);
-
+        this.append(label);
+        this.append(addButton);
     }
 
     /**
@@ -118,7 +99,7 @@ export class RateInputs extends HTMLElement {
         }
 
         this.#rateInputs.push(rateInput);
-        this.#fieldSet.append(rateInput);
+        this.append(rateInput);
     }
 
     /**

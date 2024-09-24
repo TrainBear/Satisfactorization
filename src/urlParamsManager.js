@@ -23,6 +23,7 @@ export default class UrlParamsManager {
             .split('r')
             .slice(1)
             .map(r=>math.fraction(r));
+        this.#calculator.simpleResult = params.get("simple") === 'true';
     }
 
     #update() {
@@ -33,8 +34,9 @@ export default class UrlParamsManager {
         const rates = this.#calculator.rates;
         let urlVariable = "?outputRates="
         rates.forEach(r=>{
-            urlVariable += "r" + r.n + "/" + r.d;
+            urlVariable += "r" + r.toFraction();
         })
+        urlVariable += "&simple=" + this.#calculator.simpleResult;
         window.history.replaceState(rates, "", urlVariable);
     }
 }
