@@ -148,7 +148,7 @@ export default class Calculator {
     }
 
     get combinedRate(){
-        return this.#inputRate + this.#loopBacks * this.#inputRate / this.#den;
+        return this.#inputRate.add(math.fraction(this.#loopBacks).mul(this.#inputRate).div(this.#den));
     }
 
     #calculateInputRate() {
