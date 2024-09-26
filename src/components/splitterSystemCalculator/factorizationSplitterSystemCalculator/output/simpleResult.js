@@ -2,27 +2,31 @@ import factory from "../../../../factory";
 
 export default class SimpleResult extends HTMLElement{
     #calculator;
-    #checkbox;
+    #noDoubleCheckbox;
     set calculator(calculator){
         this.#calculator = calculator;
-        this.#checkbox.checked = calculator.simpleResult;
+        this.#noDoubleCheckbox.checked = calculator.noDouble;
     }
 
     connectedCallback(){
         const br = factory.createElement("br");
         this.append(br);
+        this.#createNoDouble();
+    }
+
+    #createNoDouble() {
 
         const label = factory.createElement("label");
-        label.innerText = "Simple Result";
+        label.innerText = "No double";
         label.setAttribute("title", "Only let the last layer to be three.");
         this.append(label);
 
-        this.#checkbox = factory.createElement("input");
-        this.#checkbox.setAttribute("type", "checkbox");
-        this.#checkbox.addEventListener("change", e =>{
-            this.#calculator.simpleResult = e.target.checked;
+        this.#noDoubleCheckbox = factory.createElement("input");
+        this.#noDoubleCheckbox.setAttribute("type", "checkbox");
+        this.#noDoubleCheckbox.addEventListener("change", e =>{
+            this.#calculator.noDouble = e.target.checked;
         });
-        this.append(this.#checkbox);
+        this.append(this.#noDoubleCheckbox);
     }
 }
 

@@ -43,23 +43,20 @@ export default class Calculator {
      */
     #isValid = false;
 
-    /**
-     * @type {Array<number>}
-     */
     #outputNumerators;
 
     /**
      * @type string
      */
-    #statusMessage= "Add parameters.";
+    #statusMessage = "Add parameters.";
 
     /**
      * @type Array<function>
      */
     #onChangeCallbackMethods = [];
-    #simpleResult = false;
+    #noDouble = false;
 
-    get rates(){
+    get rates() {
         return Array.from(this.#outputRates);
     }
 
@@ -67,18 +64,18 @@ export default class Calculator {
      *
      * @param rates {Array<math.Fraction>}
      */
-    set rates(rates){
+    set rates(rates) {
 
-        this.#outputRates = rates.filter(r=>r.n !== 0);
+        this.#outputRates = rates.filter(r => r.n !== 0);
         this.recalculateAll();
     }
 
-    get simpleResult(){
-        return this.#simpleResult;
+    get noDouble() {
+        return this.#noDouble;
     }
 
-    set simpleResult(value){
-        this.#simpleResult = value;
+    set noDouble(value) {
+        this.#noDouble = value;
         this.recalculateAll();
     }
 
@@ -99,13 +96,13 @@ export default class Calculator {
             if (!this.#calculateLayers()) {
                 return;
             }
-            this.#calculateOutputData();
-            this.#calculateLoopBackData();
+
             this.#statusMessage = "Calculated successfully!";
             this.#isValid = true;
         } catch (e) {
             this.setInvalid("Unhandled calculation error.");
             console.error("Unhandled calculation error: " + e.message);
+            throw e;
         } finally {
             this.#onChange();
         }
@@ -115,15 +112,15 @@ export default class Calculator {
      *
      * @returns {math.Fraction}
      */
-    get inputRate(){
+    get inputRate() {
         return this.#inputRate;
     }
 
-    get loopBacks(){
+    get loopBacks() {
         return this.#loopBacks;
     }
 
-    get loopBackData(){
+    get loopBackData() {
         return this.#loopBackData;
     }
 
@@ -131,29 +128,31 @@ export default class Calculator {
      *
      * @returns {Array<number>}
      */
-    get layers(){
+    get layers() {
         return this.#layers;
     }
 
-    get outputNumerators(){
+    get outputNumerators() {
         return this.#outputNumerators;
     }
 
-    get isValid(){
+    get isValid() {
         return this.#isValid;
     }
 
-    get statusMessage(){
+    get statusMessage() {
         return this.#statusMessage;
     }
 
-    get combinedRate(){
+    get combinedRate() {
         return this.#inputRate.add(math.fraction(this.#loopBacks).mul(this.#inputRate).div(this.#den));
     }
 
     #calculateInputRate() {
         let sum = 0;
-        this.#outputRates.forEach(r=>{sum = math.sum(sum, r)});
+        this.#outputRates.forEach(r => {
+            sum = math.sum(sum, r)
+        });
         this.#inputRate = sum;
     }
 
@@ -163,7 +162,7 @@ export default class Calculator {
      */
     #calculateLayers() {
 
-        const ratios = this.#outputRates.map(r=>r.div(this.inputRate));
+        const ratios = this.#outputRates.map(r => r.div(this.inputRate));
         const gcd = math.gcd(...ratios);
         const den = gcd.inverse().valueOf();
 
@@ -172,32 +171,41 @@ export default class Calculator {
         let adjustedDen;
         let factors;
         let loops = 0;
-        while(!found){
-            loopBacks++;
-            adjustedDen = den + loopBacks;
-            if (adjustedDen > PRIME_FACTORS_INPUT_LIMIT){
-                this.setInvalid("Inverted GCD of rates is too big");
-                return false;
-            }
-            factors = this.#specializedFactorize(adjustedDen);
-            found = factors!== null;
-            if(loops++ > MAX_LOOP_BACKS){
+        while (!found) {
+            if (loops++ > MAX_LOOP_BACKS) {
                 this.setInvalid("Too many required loop-backs. Current limit is " + MAX_LOOP_BACKS + ". " +
                     "Are you using a rounded number? Make sure all numbers are exact.");
                 return false;
             }
+            loopBacks++;
+            adjustedDen = den + loopBacks;
+            if (adjustedDen > PRIME_FACTORS_INPUT_LIMIT) {
+                this.setInvalid("Inverted GCD of rates is too big");
+                return false;
+            }
+            factors = this.#specializedFactorize(adjustedDen);
+            if (factors === null) {
+                continue;
+            }
+            this.#loopBacks = loopBacks;
+            this.#adjustedDen = adjustedDen;
+            this.#den = den;
+            this.#layers = factors;
+            this.#calculateOutputData();
+            this.#calculateLoopBackData();
+            found = true;
+            if (this.#noDouble) {
+                found = found && !this.hasDouble();
+            }
+
         }
 
-        this.#loopBacks = loopBacks;
-        this.#adjustedDen = adjustedDen;
-        this.#den = den;
-        this.#layers = factors;
         return true;
     }
 
-    #calculateOutputData(){
+    #calculateOutputData() {
         const outputData = []
-        for (let i=0; i<this.#outputRates.length; i++){
+        for (let i = 0; i < this.#outputRates.length; i++) {
             const lastLayerBelts = this.#lastLayerBeltsOf(this.#outputRates[i]);
             const layerComposition = this.#layerCompositionOf(lastLayerBelts);
             outputData.push({
@@ -226,23 +234,23 @@ export default class Calculator {
      *
      * @param outputNumerator {number}
      */
-    #layerCompositionOf(outputNumerator){
+    #layerCompositionOf(outputNumerator) {
         let result = [];
         let a = 0;
         let l = this.#layers;
         let loopLimit = 100;
-        while(a < outputNumerator){
+        while (a < outputNumerator) {
             let b = this.#adjustedDen;
-            for (let i=0; i<l.length; i++){
+            for (let i = 0; i < l.length; i++) {
                 b /= l[i];
-                if(a+b <= outputNumerator){
+                if (a + b <= outputNumerator) {
                     a += b;
-                    result.push(i+1);
+                    result.push(i + 1);
                     break;
                 }
             }
             loopLimit--;
-            if(loopLimit <= 0){
+            if (loopLimit <= 0) {
                 throw Error("Looping too much...");
             }
         }
@@ -263,25 +271,25 @@ export default class Calculator {
      *
      * @param message {string} The message to show the user.
      */
-    setInvalid(message){
+    setInvalid(message) {
         this.#isValid = false;
         this.#statusMessage = message;
         this.#onChange();
     }
 
-    subscribeChange(callback){
+    subscribeChange(callback) {
         this.#onChangeCallbackMethods.push(callback);
     }
 
-    unsubscribeChange(callback){
+    unsubscribeChange(callback) {
         const index = this.#onChangeCallbackMethods.indexOf(callback);
         if (index > -1) {
             this.#onChangeCallbackMethods.splice(index, 1);
         }
     }
 
-    #onChange(){
-        this.#onChangeCallbackMethods.forEach(f=>f());
+    #onChange() {
+        this.#onChangeCallbackMethods.forEach(f => f());
     }
 
     /**
@@ -289,25 +297,17 @@ export default class Calculator {
      * @param n {number} the number to factorize
      * @returns {Array<number>|null} Factors if success, null otherwise.
      */
-    #specializedFactorize(n){
+    #specializedFactorize(n) {
         let factors = [];
-        while(n%2===0){
+        while (n % 2 === 0) {
             factors.push(2);
-            n/=2;
+            n /= 2;
         }
-        if(this.#simpleResult === false){
-            while(n%3===0){
-                factors.push(3);
-                n/=3;
-            }
-        }else{
-            if(n%3===0){
-                factors.push(3);
-                n/=3;
-            }
-
+        while (n % 3 === 0) {
+            factors.push(3);
+            n /= 3;
         }
-        if(n!==1){
+        if (n !== 1) {
             return null;
         }
         return factors;
@@ -316,8 +316,8 @@ export default class Calculator {
     #calculateLoopBackData() {
         const rate =
             math.fraction(this.#loopBacks)
-            .mul(this.#inputRate)
-            .div(this.#den);
+                .mul(this.#inputRate)
+                .div(this.#den);
         const lastLayerBelts = this.#lastLayerBeltsOf(rate);
         const layerComposition = this.#layerCompositionOf(lastLayerBelts);
         this.#loopBackData = {
@@ -325,5 +325,14 @@ export default class Calculator {
             lastLayerBelts: lastLayerBelts,
             layerComposition: layerComposition
         }
+    }
+
+    hasDouble() {
+        const layersLength = this.layers.length;
+        let layerCompositions = this.outputNumerators.map(data => data.layerComposition);
+        layerCompositions.push(this.loopBackData.layerComposition);
+        layerCompositions = layerCompositions.map(lc => lc.filter(v => v !== layersLength)); // Last layer is allowed to be double.
+        return layerCompositions.some(lc => new Set(lc).size !== lc.length);
+
     }
 }
