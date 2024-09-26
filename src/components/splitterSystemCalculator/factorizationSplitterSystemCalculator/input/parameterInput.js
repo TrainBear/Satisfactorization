@@ -1,6 +1,6 @@
 import factory from "../../../../factory";
 import {RateInputs} from "./rateInputs.js";
-import SimpleResult from "./simpleResult.js";
+import SimpleResult from "../output/simpleResult.js";
 
 export default class ParameterInput extends HTMLElement{
 

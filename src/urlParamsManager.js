@@ -23,7 +23,7 @@ export default class UrlParamsManager {
             .split('r')
             .slice(1)
             .map(r=>math.fraction(r));
-        this.#calculator.simpleResult = params.get("simple") === 'true';
+        this.#calculator.noDouble = params.get("simple") === 'true' || params.get("noDouble") === 'true';   // 'simple' is old name
     }
 
     #update() {
@@ -36,7 +36,7 @@ export default class UrlParamsManager {
         rates.forEach(r=>{
             urlVariable += "r" + r.toFraction();
         })
-        urlVariable += "&simple=" + this.#calculator.simpleResult;
+        urlVariable += "&noDouble=" + this.#calculator.noDouble;
         window.history.replaceState(rates, "", urlVariable);
     }
 }
