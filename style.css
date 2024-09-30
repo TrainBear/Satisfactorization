@@ -1,11 +1,11 @@
 th, td {
-    border:1px solid black;
-    padding:3px;
+    border:0.06rem solid black;
+    padding:0.20rem;
 }
 
 body{
-    max-width: 800px;
-    font-size:18px;
+    max-width: 50rem;
+    font-size: 1rem;
 
     margin-left: auto;
     margin-right: auto;
@@ -13,4 +13,21 @@ body{
 
 td{
     text-align: center;
+}
+
+@media (prefers-color-scheme: dark){
+    :root {
+        --background-color: #333333;
+        --content-color: #CCCCCC;
+    }
+    body, input, select, textarea, button{
+        background-color: var(--background-color);
+        color: white;
+    }
+    label, table, p, legend, h1,h2,h3,h4,h5,h6{
+        color:var(--content-color);
+    }
+    td, th{
+        border: 0.06rem solid var(--content-color);
+    }
 }
