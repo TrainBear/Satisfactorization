@@ -1,12 +1,10 @@
 import factory from "../../../../factory.js";
 
-export class InputRate extends HTMLElement {
+export class InputRate extends HTMLElement{
     /**
      * @type {HTMLParagraphElement}
      */
     #textElement;
-
-    #initiated = false;
     #calculator;
 
     set calculator(calculator){
@@ -19,11 +17,6 @@ export class InputRate extends HTMLElement {
     }
 
     connectedCallback() {
-        // super.connectedCallback();
-        if(this.#initiated){
-            return;
-        }
-        this.#initiated = true;
         this.#textElement = factory.createElement('p');
         this.append(this.#textElement);
     }
@@ -33,10 +26,7 @@ export class InputRate extends HTMLElement {
      */
     #update() {
         if(this.#calculator.isValid){
-            this.append(this.#textElement);
             this.#textElement.innerText = "Input rate: " + this.#calculator.inputRate.toString() + "/m";
-        }else{
-            this.#textElement.remove();
         }
     }
 }
