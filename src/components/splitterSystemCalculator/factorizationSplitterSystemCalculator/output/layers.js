@@ -1,11 +1,6 @@
 import factory from "../../../../factory";
 
 export class Layers extends HTMLElement {
-    /**
-     * @type HTMLParagraphElement
-     */
-    #textElement;
-    #initiated = false;
     #calculator;
     #table;
     #tableRows = [];
@@ -20,11 +15,6 @@ export class Layers extends HTMLElement {
     }
 
     connectedCallback() {
-        // super.connectedCallback();
-        if(this.#initiated){
-            return;
-        }
-        this.#initiated = true;
 
         this.#table = factory.createElement('table');
         this.append(this.#table);
@@ -50,14 +40,12 @@ export class Layers extends HTMLElement {
     }
 
     #update() {
+        this.#resetRows();
 
         if(!this.#calculator.isValid){
-            this.#table.remove();
             return;
         }
-        this.append(this.#table);
 
-        this.#resetRows();
 
         const layers = this.#calculator.layers;
         let currentRate = this.#calculator.combinedRate;

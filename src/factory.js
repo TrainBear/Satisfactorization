@@ -4,7 +4,7 @@ export default class {
      * Create HTML element.
      * @param tagName
      * @returns {HTMLInputElement|HTMLParagraphElement|HTMLFieldSetElement|RateInput|RateInputs|HTMLLegendElement|
-     * CalculationDisplay|InputRate|HTMLParagraphElement}
+     * CalculationDisplay|InputRate|HTMLParagraphElement|HTMLDivElement}
      */
     static createElement(tagName){
         switch (tagName) {

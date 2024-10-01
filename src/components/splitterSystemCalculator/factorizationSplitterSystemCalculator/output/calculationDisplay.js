@@ -9,33 +9,36 @@ export class CalculationDisplay extends HTMLElement{
 
     #inputRate;
     #layers;
-    #loopBacks;
     #outputLayers;
     #statusMessage;
     #resultCopy;
+    #shownOnValid;
     connectedCallback(){
-        // super.connectedCallback();
-
         this.#statusMessage = factory.createElement('status-display');
         this.append(this.#statusMessage);
 
+        this.#shownOnValid = factory.createElement('div');
+        this.append(this.#shownOnValid);
+
         this.#inputRate = factory.createElement("input-rate");
-        this.append(this.#inputRate);
+        this.#shownOnValid.append(this.#inputRate);
 
         this.#layers = factory.createElement("layers-display");
-        this.append(this.#layers);
+        this.#shownOnValid.append(this.#layers);
 
         this.#outputLayers = factory.createElement("output-layers");
-        this.append(this.#outputLayers);
-
-        this.#loopBacks = factory.createElement("loop-backs");
-        this.append(this.#loopBacks);
+        this.#shownOnValid.append(this.#outputLayers);
 
         this.#resultCopy = factory.createElement("result-copy");
-        this.append(this.#resultCopy);
+        this.#shownOnValid.append(this.#resultCopy);
     }
 
     set calculator(calculator){
+        this.#shownOnValid.hidden = !calculator.isValid;
+        calculator.subscribeChange(()=>{
+            this.#shownOnValid.hidden = !calculator.isValid;
+        });
+
         this.#statusMessage.calculator = calculator;
         this.#inputRate.calculator = calculator;
         this.#layers.calculator = calculator;

@@ -3,7 +3,6 @@ import factory from "../../../../factory.js";
 class OutputLayers extends HTMLElement{
     #table;
     #tableRows = [];
-    #initiated;
     #calculator;
 
     set calculator(calculator){
@@ -16,10 +15,6 @@ class OutputLayers extends HTMLElement{
     }
 
     connectedCallback(){
-        if(this.#initiated){
-            return;
-        }
-        this.#initiated = true;
         this.#table = factory.createElement("table");
         this.#table.setAttribute("title", "This table describes how many last layer belts must be " +
             "merged to get the requested outputs.");
@@ -57,10 +52,8 @@ class OutputLayers extends HTMLElement{
         this.#resetRows();
 
         if(!this.#calculator.isValid){
-            this.#table.remove();
             return;
         }
-        this.append(this.#table);
 
         const outputLayers = this.#calculator.outputNumerators;
 
