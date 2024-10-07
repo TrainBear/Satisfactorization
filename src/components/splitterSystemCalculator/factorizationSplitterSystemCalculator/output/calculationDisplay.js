@@ -4,6 +4,7 @@ import './layers.js';
 import './outputLayers.js';
 import './statusDisplay.js';
 import './resultCopy.js';
+import './mixedRate.js';
 
 export class CalculationDisplay extends HTMLElement{
 
@@ -13,6 +14,7 @@ export class CalculationDisplay extends HTMLElement{
     #statusMessage;
     #resultCopy;
     #shownOnValid;
+    #mixedRate;
     connectedCallback(){
         this.#statusMessage = factory.createElement('status-display');
         this.append(this.#statusMessage);
@@ -22,6 +24,9 @@ export class CalculationDisplay extends HTMLElement{
 
         this.#inputRate = factory.createElement("input-rate");
         this.#shownOnValid.append(this.#inputRate);
+
+        this.#mixedRate = factory.createElement('mixed-rate');
+        this.#shownOnValid.append(this.#mixedRate);
 
         this.#layers = factory.createElement("layers-display");
         this.#shownOnValid.append(this.#layers);
@@ -41,6 +46,7 @@ export class CalculationDisplay extends HTMLElement{
 
         this.#statusMessage.calculator = calculator;
         this.#inputRate.calculator = calculator;
+        this.#mixedRate.calculator = calculator;
         this.#layers.calculator = calculator;
         this.#outputLayers.calculator = calculator;
         this.#resultCopy.calculator = calculator;

@@ -144,7 +144,7 @@ export default class Calculator {
         return this.#statusMessage;
     }
 
-    get combinedRate() {
+    get mixedRate() {
         return this.#inputRate.add(math.fraction(this.#loopBacks).mul(this.#inputRate).div(this.#den));
     }
 
