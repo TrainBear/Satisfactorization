@@ -1,10 +1,8 @@
 import factory from "../../../../factory";
 
-class MixedRate extends HTMLElement{
-
+class Propagation extends HTMLElement{
     #textElement;
     #calculator;
-
     connectedCallback(){
         this.#textElement = factory.createElement('p');
         this.append(this.#textElement);
@@ -20,8 +18,11 @@ class MixedRate extends HTMLElement{
         if(!this.#calculator.isValid){
             return;
         }
-        this.#textElement.innerText = "Mixed rate: " + this.#calculator.mixedRate.toString() + "/m";
+
+        const percentage = 99.99;
+        const time = this.#calculator.propagationRounds(percentage);
+        this.#textElement.innerText = percentage + '% propagation: ' + time + " rounds";
     }
 }
 
-window.customElements.define('mixed-rate', MixedRate);
+window.customElements.define('propagation-rounds', Propagation);
