@@ -1,4 +1,5 @@
 import * as math from "mathjs";
+import {number} from "mathjs";
 
 const MAX_LOOP_BACKS = 1_000_000;
 const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
@@ -74,40 +75,6 @@ export default class Calculator {
         return this.#noDouble;
     }
 
-    set noDouble(value) {
-        this.#noDouble = value;
-        this.recalculateAll();
-    }
-
-    recalculateAll() {
-        try {
-            this.#reset();
-            // Too few parameters
-            if (this.#outputRates.length < 2) {
-                this.setInvalid("Too few non-zero parameters.");
-                return;
-            }
-            // Parameters must be positive
-            if (this.#outputRates.some(r => r.s === -1)) {
-                this.setInvalid("Parameters must be positive.");
-                return;
-            }
-            this.#calculateInputRate();
-            if (!this.#calculateLayers()) {
-                return;
-            }
-
-            this.#statusMessage = "Calculated successfully!";
-            this.#isValid = true;
-        } catch (e) {
-            this.setInvalid("Unhandled calculation error.");
-            console.error("Unhandled calculation error: " + e.message);
-            throw e;
-        } finally {
-            this.#onChange();
-        }
-    }
-
     /**
      *
      * @returns {math.Fraction}
@@ -144,8 +111,42 @@ export default class Calculator {
         return this.#statusMessage;
     }
 
-    get combinedRate() {
-        return this.#inputRate.add(math.fraction(this.#loopBacks).mul(this.#inputRate).div(this.#den));
+    get mixedRate() {
+        return this.#inputRate.mul(this.#adjustedDen).div(this.#den);
+    }
+
+    set noDouble(value) {
+        this.#noDouble = value;
+        this.recalculateAll();
+    }
+
+    recalculateAll() {
+        try {
+            this.#reset();
+            // Too few parameters
+            if (this.#outputRates.length < 2) {
+                this.setInvalid("Too few non-zero parameters.");
+                return;
+            }
+            // Parameters must be positive
+            if (this.#outputRates.some(r => r.s === -1)) {
+                this.setInvalid("Parameters must be positive.");
+                return;
+            }
+            this.#calculateInputRate();
+            if (!this.#calculateLayers()) {
+                return;
+            }
+
+            this.#statusMessage = "Calculated successfully!";
+            this.#isValid = true;
+        } catch (e) {
+            this.setInvalid("Unhandled calculation error.");
+            console.error("Unhandled calculation error: " + e.message);
+            throw e;
+        } finally {
+            this.#onChange();
+        }
     }
 
     #calculateInputRate() {
@@ -334,5 +335,22 @@ export default class Calculator {
         layerCompositions = layerCompositions.map(lc => lc.filter(v => v !== layersLength)); // Last layer is allowed to be double.
         return layerCompositions.some(lc => new Set(lc).size !== lc.length);
 
+    }
+
+    propagationRounds(percentage){
+        if(percentage <= 0 && percentage >= 100){
+            throw new Error('Invalid propagation percentage.');
+        }
+        let prop = math.fraction(this.inputRate);
+        let step = 0;
+        const propRange = this.mixedRate;
+        while(propRange.mul(percentage/100).sub(prop) >= 0){
+            step++;
+            prop += math.pow(
+                this.inputRate.mul(this.loopBacks).div(this.#adjustedDen),
+                step
+            );
+        }
+        return step;
     }
 }

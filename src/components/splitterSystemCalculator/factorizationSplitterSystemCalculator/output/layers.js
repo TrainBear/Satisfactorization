@@ -48,9 +48,11 @@ export class Layers extends HTMLElement {
 
 
         const layers = this.#calculator.layers;
-        let currentRate = this.#calculator.combinedRate;
+        let currentRate = this.#calculator.mixedRate;
 
         for(let i = 0; i<layers.length; i++){
+            currentRate = currentRate.div(layers[i]);
+
             const tr = factory.createElement('tr');
             this.#table.append(tr);
             this.#tableRows.push(tr);
@@ -66,8 +68,6 @@ export class Layers extends HTMLElement {
             const td2 = factory.createElement('td');
             td2.innerText = currentRate.toString() + "/m";
             tr.append(td2);
-
-            currentRate = currentRate.div(layers[i]);
         }
     }
 
