@@ -1,7 +1,7 @@
 import * as math from "mathjs";
-import {number} from "mathjs";
+import {forEach, number} from "mathjs";
 
-const MAX_LOOP_BACKS = 1_000_000;
+const MAX_LOOP_BACKS = 100_000;
 const PRIME_FACTORS_INPUT_LIMIT = 9_007_199_254_740_991;
 
 export default class Calculator {
@@ -55,7 +55,17 @@ export default class Calculator {
      * @type Array<function>
      */
     #onChangeCallbackMethods = [];
+
+    /**
+     *
+     * @type {boolean}
+     */
     #noDouble = false;
+
+    /**
+     * @type {boolean}
+     */
+    #simpleSolution = false;
 
     get rates() {
         return Array.from(this.#outputRates);
@@ -66,7 +76,6 @@ export default class Calculator {
      * @param rates {Array<math.Fraction>}
      */
     set rates(rates) {
-
         this.#outputRates = rates.filter(r => r.n !== 0);
         this.recalculateAll();
     }
@@ -117,6 +126,15 @@ export default class Calculator {
 
     set noDouble(value) {
         this.#noDouble = value;
+        this.recalculateAll();
+    }
+
+    get simpleSolution() {
+        return this.#simpleSolution;
+    }
+
+    set simpleSolution(value) {
+        this.#simpleSolution = value;
         this.recalculateAll();
     }
 
@@ -174,8 +192,7 @@ export default class Calculator {
         let loops = 0;
         while (!found) {
             if (loops++ > MAX_LOOP_BACKS) {
-                this.setInvalid("Too many required loop-backs. Current limit is " + MAX_LOOP_BACKS + ". " +
-                    "Are you using a rounded number? Make sure all numbers are exact.");
+                this.setInvalid("Too many calculation attempts. Current limit is " + MAX_LOOP_BACKS + ".");
                 return false;
             }
             loopBacks++;
@@ -195,8 +212,11 @@ export default class Calculator {
             this.#calculateOutputData();
             this.#calculateLoopBackData();
             found = true;
-            if (this.#noDouble) {
+            if (this.noDouble) {
                 found = found && !this.hasDouble();
+            }
+            if (this.simpleSolution) {
+                found = found && this.isSimple();
             }
 
         }
@@ -337,14 +357,14 @@ export default class Calculator {
 
     }
 
-    propagationRounds(percentage){
-        if(percentage <= 0 && percentage >= 100){
+    propagationRounds(percentage) {
+        if (percentage <= 0 && percentage >= 100) {
             throw new Error('Invalid propagation percentage.');
         }
         let prop = math.fraction(this.inputRate);
         let step = 0;
         const propRange = this.mixedRate;
-        while(propRange.mul(percentage/100).sub(prop) >= 0){
+        while (propRange.mul(percentage / 100).sub(prop) >= 0) {
             step++;
             prop += math.pow(
                 this.inputRate.mul(this.loopBacks).div(this.#adjustedDen),
@@ -352,5 +372,26 @@ export default class Calculator {
             );
         }
         return step;
+    }
+
+    isSimple() {
+        const layerCount = this.layers.length;
+        let outCounts = Array(layerCount).fill(0);
+        // console.log("OutCounts: " + outCounts);
+        for (let i = 0; i < this.outputNumerators.length; i++) {
+            this.outputNumerators[i].layerComposition.forEach((comp => {
+                outCounts[comp-1]++;
+            }))
+        }
+        this.loopBackData.layerComposition.forEach((comp => {
+            outCounts[comp-1]++;
+        }))
+        // console.log("Layers: " + this.layers);
+        // // console.log("OutputNumerators: " + this.outputNumerators);
+        // console.log("OutCounts: " + outCounts);
+        return this.layers.every((splitter, index) => {
+            return splitter - 1 === outCounts[index]
+                || index === layerCount - 1;
+        })
     }
 }

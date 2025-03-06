@@ -1,7 +1,7 @@
 import factory from "../../../factory.js";
 import './input/parameterInput.js';
 import './output/calculationDisplay.js';
-import Calculator from "../../../calculator";
+import Calculator from "../../../Calculator/calculator";
 import UrlParamsManager from "../../../urlParamsManager.js";
 
 export class FactorizationSplitterSystemCalculator extends HTMLElement {

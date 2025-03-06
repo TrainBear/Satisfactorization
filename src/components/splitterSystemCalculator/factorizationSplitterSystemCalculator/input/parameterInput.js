@@ -1,5 +1,6 @@
 import factory from "../../../../factory";
 import {RateInputs} from "./rateInputs.js";
+import NoDouble from "./noDouble.js";
 import SimpleResult from "./simpleResult.js";
 
 export default class ParameterInput extends HTMLElement{
@@ -8,6 +9,7 @@ export default class ParameterInput extends HTMLElement{
      * @type {RateInputs}
      */
     #rateInputs;
+    #noDouble;
     #simpleResult;
 
     connectedCallback(){
@@ -28,6 +30,10 @@ export default class ParameterInput extends HTMLElement{
         this.#rateInputs = factory.createElement("rate-inputs");
         fieldSet.append(this.#rateInputs);
 
+        // No double
+        this.#noDouble = factory.createElement("no-double");
+        fieldSet.append(this.#noDouble);
+
         // Simplified Solution
         this.#simpleResult = factory.createElement("simple-result");
         fieldSet.append(this.#simpleResult);
@@ -35,6 +41,7 @@ export default class ParameterInput extends HTMLElement{
 
     set calculator(calculator){
         this.#rateInputs.calculator = calculator;
+        this.#noDouble.calculator = calculator;
         this.#simpleResult.calculator = calculator;
     }
 }
